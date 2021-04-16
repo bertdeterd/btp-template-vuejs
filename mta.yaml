@@ -1,0 +1,85 @@
+_schema-version: "3.2"
+ID: xx
+version: 0.0.1
+
+modules:
+
+- name: webapp_destination_content
+  type: com.sap.application.content
+  requires:
+  - name: uaa_service 
+    parameters:
+      service-key:
+        name: xx_uaa-key
+  - name: html_repo_host
+    parameters:
+      service-key:
+        name: xx_html_repo_host-key
+  - name: uaa_to_host_destination
+    parameters:
+      content-target: true
+  parameters:
+    content:
+      subaccount:
+        destinations:
+        - Name: xx_htmlrepohost
+          ServiceInstanceName:  xx-html5-app-host-service
+          ServiceKeyName:  xx_html_repo_host-key
+          sap.cloud.service: xx
+        - Name: xx_tokenexchange
+          Authentication: OAuth2UserTokenExchange
+          ServiceInstanceName: xx-xsuaa-service
+          ServiceKeyName: xx_uaa-key
+          sap.cloud.service: xx
+        existing_destinations_policy: update
+  build-parameters:
+    no-source: true
+
+- name: webapp_deployer
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: html_repo_host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: mta_resources
+    requires:
+    - name: webapp
+      artifacts:
+      - webapp-content.zip
+      target-path: mta_resources/
+      
+- name: webapp
+  type: html5
+  path: app/orderlistapp
+  build-parameters:
+    builder: custom
+    commands:
+        - npm run build
+        - npm run zip
+    build-result: build  
+    supported-platforms: []
+
+
+resources:
+
+- name: uaa_to_host_destination
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: destination
+    service-name: xx-destination-service
+    service-plan: lite
+- name: html_repo_host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: xx-html5-app-host-service
+    service-plan: app-host
+- name: uaa_service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: xx-xsuaa-service
+    service-plan: application
