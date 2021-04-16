@@ -5,6 +5,9 @@
   "repository": "<Add your repository here>",
   "license": "UNLICENSED",
   "private": true,
+  "config": {
+    "mtarname": "webapp"
+  },
   "dependencies": {
     "@sap/cds": "^4",
     "express": "^4"
@@ -13,9 +16,9 @@
     "sqlite3": "^5.0.2"
   },
   "scripts": {
-    "build:mta": "mbt build",
+    "build:mta": "mbt build -t=./mta/archives --mtar=%npm_package_config_mtarname%.mtar",
     "predeploy:mta": "npm run build:mta",
-    "deploy:mta": "cd mta_archives && cf deploy %npm_package_config_appid%_0.0.1.mtar",
+    "deploy:mta": "cd mta/archives && cf deploy %npm_package_config_mtarname%.mtar",
     "html5-list": "cf html5-list",
     "html5-list-with-url": "cf html5-list -d -rt launchpad -u"
   }
