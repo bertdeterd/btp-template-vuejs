@@ -1,8 +1,12 @@
 _schema-version: "3.2"
-ID: xx
+ID: config
 version: 0.0.1
+parameters:
+  prefix: bc
+
 
 modules:
+
 
 - name: webapp_destination_content
   type: com.sap.application.content
@@ -10,11 +14,11 @@ modules:
   - name: uaa_service 
     parameters:
       service-key:
-        name: xx_uaa-key
+        name: ${prefix}_uaa-key
   - name: html_repo_host
     parameters:
       service-key:
-        name: xx_html_repo_host-key
+        name: ${prefix}_html_repo_host-key
   - name: uaa_to_host_destination
     parameters:
       content-target: true
@@ -22,15 +26,15 @@ modules:
     content:
       subaccount:
         destinations:
-        - Name: xx_htmlrepohost
-          ServiceInstanceName:  xx-html5-app-host-service
-          ServiceKeyName:  xx_html_repo_host-key
-          sap.cloud.service: xx
-        - Name: xx_tokenexchange
+        - Name: ${prefix}_htmlrepohost
+          ServiceInstanceName:  ${prefix}-html5-app-host-service
+          ServiceKeyName:  ${prefix}_html_repo_host-key
+          sap.cloud.service: ${prefix}
+        - Name: ${prefix}_tokenexchange
           Authentication: OAuth2UserTokenExchange
-          ServiceInstanceName: xx-xsuaa-service
-          ServiceKeyName: xx_uaa-key
-          sap.cloud.service: xx
+          ServiceInstanceName: ${prefix}-xsuaa-service
+          ServiceKeyName: ${prefix}_uaa-key
+          sap.cloud.service: ${prefix}
         existing_destinations_policy: update
   build-parameters:
     no-source: true
@@ -43,12 +47,12 @@ modules:
     parameters:
       content-target: true
   build-parameters:
-    build-result: mta_resources
+    build-result: mta/resources
     requires:
     - name: webapp
       artifacts:
       - webapp-content.zip
-      target-path: mta_resources/
+      target-path: mta/resources/
       
 - name: webapp
   type: html5
@@ -58,7 +62,7 @@ modules:
     commands:
         - npm run build
         - npm run zip
-    build-result: build  
+    build-result: dist  
     supported-platforms: []
 
 
@@ -68,18 +72,18 @@ resources:
   type: org.cloudfoundry.managed-service
   parameters:
     service: destination
-    service-name: xx-destination-service
+    service-name: ${prefix}-destination-service
     service-plan: lite
 - name: html_repo_host
   type: org.cloudfoundry.managed-service
   parameters:
     service: html5-apps-repo
-    service-name: xx-html5-app-host-service
+    service-name: ${prefix}-html5-app-host-service
     service-plan: app-host
 - name: uaa_service
   type: org.cloudfoundry.managed-service
   parameters:
     path: ./xs-security.json
     service: xsuaa
-    service-name: xx-xsuaa-service
+    service-name: ${prefix}-xsuaa-service
     service-plan: application
